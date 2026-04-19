@@ -1,0 +1,10 @@
+# project management folders
+.idea/
+__pycache__/
+
+# build & deployment folders and files.
+exe/
+*.spec
+myenv/
+build/
+dist/
