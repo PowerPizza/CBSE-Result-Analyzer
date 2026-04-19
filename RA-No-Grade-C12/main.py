@@ -1,30 +1,30 @@
 """
 Date - 02-08-2023
 Developer - scihack/powerpizza
-Purpose - to sort the txt unsorted data in a excel file.
+Purpose - to sort the txt unsorted data in an excel file.
 """
+import os
 import tkinter, json
 from tkinter import *
 from tkinter import filedialog, messagebox
 from string_helper_funcs import *
 from other_functions import *
-from openpyxl import load_workbook
 from openpyxl.styles import Alignment, PatternFill
+from openpyxl import load_workbook
 import webbrowser
 from pandas import DataFrame, to_numeric, ExcelWriter
 from pandas.io.formats import excel
 import matplotlib.pyplot as plt
-import os
 
 print("Starting . . . .")
 root = tkinter.Tk()
 root.geometry("900x600")
-root.title("Result Analyzer (For 10th)")
+root.title("Result Analyzer (For 12th)")
 root.state("zoomed")
 root.iconphoto(True, PhotoImage(file="software_icon.png", master=root))
 
 # --------------- constants and variables ------------
-DATA_DIRECTORY = os.path.join(os.getenv("APPDATA"), "Result Analyzer 10th")
+DATA_DIRECTORY = os.path.join(os.getenv("APPDATA"), "Result Analyzer 12th")
 SUB_CODE_REFR_PATH = os.path.join(DATA_DIRECTORY, "subject_code_refer.json")
 CONFIG_FILE_PATH = os.path.join(DATA_DIRECTORY, "configs.json")
 
@@ -135,19 +135,12 @@ def dataLineExtractor(data_file):
                         to_append_["SubCode_MG"][code_] = [line[idxr]]
                         if line[idxr].isnumeric():
                             to_append_["overall_total"] += int(line[idxr])
-                            if code_ not in configs_["main_subject_code"]:
+                            if code_ != configs_["main_subject_code"]:
                                 marks_list.append(int(line[idxr]))
                         idxr += 1
                     if len(marks_list):
-                        lang_total = 0
-                        optional_sub_codes_found = []
-                        for itm in configs_["main_subject_code"]:
-                            if itm in to_append_["SubCode_MG"]:
-                                lang_total += int(to_append_["SubCode_MG"][itm][0])
-                                optional_sub_codes_found.append(itm)
-                        if len(optional_sub_codes_found) != configs_["consider_main_sub_code"]:
-                            add_log(f"⚠️ Its confusing how could one student have {len(optional_sub_codes_found)} language subjects if allowed exactly {configs_['consider_main_sub_code']}?? It will affect the result please consider checking *FOUND : {optional_sub_codes_found} AT {to_append_['LINE1']}* OR change value of `global consider_main_sub_code`")
-                        to_append_["best5_total"] = sum(sorted(marks_list, reverse=True)[:configs_["max_best_sub_range"]-len(optional_sub_codes_found)]) + lang_total
+                        to_append_["best5_total"] = sum(sorted(marks_list, reverse=True)[:configs_["max_best_sub_range"]-1]) + int(to_append_["SubCode_MG"][configs_["main_subject_code"]][0])
+
                     dataLinePairs.append(to_append_)
                     data_line1_found = False
                     data_line1 = []
@@ -158,7 +151,6 @@ def dataLineExtractor(data_file):
                     # print("data line 1 not found for ", line)
                 # messagebox.showwarning("Invalid data line", f"Invalid dataline found it may have missing its pair.\n{line}")
 
-    # print(dataLinePairs)
     initDataFrame(dataLinePairs)
     # print(df_)
     begin_status(data_file.name)
@@ -214,7 +206,6 @@ def writeToExcel():
 
     # -------------- CREATING OVER ALL SHEET ----------
     df_over_all = DataFrame(df_)
-
     df_over_all["MARKS"] = df_over_all["MARKS"].replace(['', ' '], None)
     df_over_all["MARKS"] = df_over_all["MARKS"].apply(lambda row_: to_numeric(row_, errors='coerce'))  # changed datatype of all MARKS columns to integer
     sub_total = df_over_all["MARKS"].sum()
@@ -230,6 +221,7 @@ def writeToExcel():
     df_top_10 = df_top_10.sort_values("Total B5", ascending=False).iloc[0:10]
     df_top_10.columns = merged_column_excel_format
     df_top_10.to_excel(excel_writer, index=False, sheet_name="Top 10")
+    print("pass2")
 
     # ------------- CREATING SHEET OF EACH SINGLE SUBJECT ------------
     df_over_all = DataFrame(df_)
@@ -283,7 +275,7 @@ def writeToExcel():
         table_header += map(lambda sub_name: [sub_name, 0], subcode_to_subname(list(unique_sub_codes)))
         table_header += [
             ["Over All", 4],
-            [f"Best(5)(Best 3 + {configs_['consider_main_sub_code']} language", 4],
+            [f"Best(5)(Best 4 + {subject_by_code[configs_['main_subject_code']]['Name']})", 4],
             ["Result", 0],
             ["Compartment", 0]
         ]
@@ -348,13 +340,13 @@ def on_add_data_file():
         try:
             dataLineExtractor(selected_file)
         except KeyError as e:
-            messagebox.showerror("Invalid File", f"Seems subject code {e} is not registered, Or maybe the file is invalid.")
+            messagebox.showerror("Invalid File",f"Seems subject code {e} is not registered, Or maybe the file is invalid.")
         except BaseException as e:
             messagebox.showerror("Invalid File", f"File format is invalid please provide a valid file.\nerror : {e}")
     add_data_file_opt.config(text="Add Data File", state="normal")
     root.config(cursor='arrow')
 
-add_data_file_opt = Button(header_canva, text="Add Data File", font=("Helvetica", 12), command=on_add_data_file)
+add_data_file_opt = Button(header_canva, text="Add Data File", font=("Helvetica", 14), bg="#d4fcd2", fg="green", command=on_add_data_file)
 add_data_file_opt.pack(padx=2, pady=2, side=LEFT)
 
 def on_click_export():
@@ -369,7 +361,7 @@ def on_click_export():
     export_data_file_opt.config(text="Export Data File", state="normal")
     root.config(cursor='arrow')
 
-export_data_file_opt = Button(header_canva, text="Export Data File", font=("Helvetica", 12), command=on_click_export)
+export_data_file_opt = Button(header_canva, text="Export Data File", font=("Helvetica", 14), bg="#d4fcd2", fg="green", command=on_click_export)
 export_data_file_opt.pack(padx=2, pady=2, side=LEFT)
 
 def on_configs():
@@ -465,21 +457,21 @@ def on_configs():
 
 
     # -------------------------- EDIT MAIN SUBJECT CODE ----------------
-    main_sub_name = StringVar(value=",".join(configs_["main_subject_code"]))
+    main_sub_name = StringVar(value=configs_["main_subject_code"])
 
     frame_edit_MS = Frame(config_canva, bg="#FFFFFF", highlightthickness=1, highlightbackground="#000000")
-    lbl_edit_MS = Label(frame_edit_MS, text="Global Main Subjects", bg="#FFFFFF", font=("Arial", 14))
+    lbl_edit_MS = Label(frame_edit_MS, text="Global Main Subject", bg="#FFFFFF", font=("Arial", 14))
     lbl_edit_MS.pack(anchor="nw")
 
     frame_edit_MS_E1 = Frame(frame_edit_MS, bg="#FFFFFF")
-    lbl_main_subject = Label(frame_edit_MS_E1, text="Main Subjects", bg="#FFFFFF", font=("Arial", 12))
+    lbl_main_subject = Label(frame_edit_MS_E1, text="Main Subject", bg="#FFFFFF", font=("Arial", 12))
     lbl_main_subject.pack(side=LEFT)
-    entry_subjects = Entry(frame_edit_MS_E1, textvariable=main_sub_name)
-    entry_subjects.pack(side=LEFT)
+    menu_subjects = OptionMenu(frame_edit_MS_E1, main_sub_name, *subject_by_code.keys())
+    menu_subjects.pack(side=LEFT)
     frame_edit_MS_E1.pack()
 
     def on_save_mm():
-        configs_["main_subject_code"] = list_formatter(main_sub_name.get().replace(" ", "").split(","))
+        configs_["main_subject_code"] = main_sub_name.get()
         json.dump(configs_, open(CONFIG_FILE_PATH, "w"))
         messagebox.showinfo("Successful", f"Changed main subject to {configs_['main_subject_code']}")
 
@@ -489,31 +481,6 @@ def on_configs():
     frame_edit_MS.pack(padx=3, pady=2, anchor="w", ipadx=10)
 
     # ------------------------------- END ------------------------------
-
-    # ------------------------ GLOBAL CONSIDER MAIN SUBJECTS ---------------------
-    consider_n = IntVar(value=configs_["consider_main_sub_code"])
-
-    frame_edit_CMS = Frame(config_canva, bg="#FFFFFF", highlightthickness=1, highlightbackground="#000000")
-    lbl_edit_CMS = Label(frame_edit_CMS, text="Global Consider Main Subjects", bg="#FFFFFF", font=("Arial", 14))
-    lbl_edit_CMS.pack(anchor="nw")
-
-    frame_edit_CMS_E1 = Frame(frame_edit_CMS, bg="#FFFFFF")
-    lbl_CMS = Label(frame_edit_CMS_E1, text="Consider Main Subjects", bg="#FFFFFF", font=("Arial", 12))
-    lbl_CMS.pack(side=LEFT)
-    entry_consider_n = Entry(frame_edit_CMS_E1, textvariable=consider_n)
-    entry_consider_n.pack(side=LEFT)
-    frame_edit_CMS_E1.pack()
-
-    def on_save_cms():
-        configs_["consider_main_sub_code"] = consider_n.get()
-        json.dump(configs_, open(CONFIG_FILE_PATH, "w"))
-        messagebox.showinfo("Successful", f"Changed `consider main subject codes` to {configs_['consider_main_sub_code']}")
-
-    save_cms = Button(frame_edit_CMS, text="Save", bg="#90EE90", width=14, command=on_save_cms)
-    save_cms.pack()
-
-    frame_edit_CMS.pack(padx=3, pady=2, anchor="w", ipadx=10)
-    # -------------------------------- END ----------------------------------
 
     # -------------------------- EDIT MAX BEST SUBJECT RANGE ----------------
     max_best_subs = IntVar(value=configs_["max_best_sub_range"])
@@ -572,7 +539,7 @@ def on_configs():
 
     config_canva.place(x=0, y=0, relwidth=1.0, relheight=1.0)
 
-configs_opt = Button(header_canva, text="Config", font=("Helvetica", 12), command=on_configs)
+configs_opt = Button(header_canva, text="Config", font=("Helvetica", 14), bg="#d4fcd2", fg="green", command=on_configs)
 configs_opt.pack(padx=2, pady=2, side=LEFT)
 
 
@@ -609,7 +576,7 @@ def on_click_logs():
 
     log_canvas.place(x=0, y=0, relwidth=1.0, relheight=1.0)
 
-logs_opt = Button(header_canva, text="Logs", font=("Helvetica", 12), command=on_click_logs)
+logs_opt = Button(header_canva, text="Logs", font=("Helvetica", 14), bg="#d4fcd2", fg="green", command=on_click_logs)
 logs_opt.pack(padx=2, pady=2, side=LEFT)
 
 def on_click_about():
@@ -629,7 +596,7 @@ def on_click_about():
     1. ROLL_NO should be in range of 6 to 10 digits.
     2. Gender M for male, F for female
     3. NAME can contain white spaces.
-    4. SUB_CODE1 to infinity works just remember that DATA_LINE2 should contain marks in proper format.
+    4. SUB_CODE1 to infinity works just remember that DATA_LINE2 should contain marks of SUB_CODE(n) in proper format.
     5. (optional) GRADE1 GRADE2 GRADE3 not actually required software works same if its present of not.
     6. RESULT it should be FAIL or PASS or COMP or ABST and its required.
 
@@ -652,7 +619,7 @@ def on_click_about():
     for example : 4 + 1 = 5 where no_of_best_subjects = 4 and the 1 here for english/main subject so value of GLOBAL will be 5.
     
     5. Global Dominant Subjects : Its helps to control the column format of table like if we want subject format english
-    then Physics chemistry .... so we can use this entry to do that. Just provide subject codes and seperate them
+    then Physics chemistry .... so we can use this entry to do that. Just provide subject codes and separate them
     using ','.
     """
 
@@ -673,14 +640,14 @@ def on_click_about():
     text_ar.pack(fill=BOTH, padx=3, expand=True)
 
     def on_developer():
-        webbrowser.open("https://github.com/PowerPizza")
+        webbrowser.open(os.path.relpath("developer_webpage/index.html"), new=2)
 
-    btn_developer = Button(about_canva, text="DEVELOPER", bg="blue", fg="yellow", command=on_developer)
+    btn_developer = Button(about_canva, text="DEVELOPER", bg="blue", fg="yellow", font=("Helvetica", 14), command=on_developer)
     btn_developer.pack(anchor="e", pady=3, padx=3)
 
     about_canva.place(x=0, y=0, relwidth=1.0, relheight=1.0)
 
-about_opt = Button(header_canva, text="About", font=("Helvetica", 12), command=on_click_about)
+about_opt = Button(header_canva, text="About", font=("Helvetica", 14), bg="#d4fcd2", fg="green", command=on_click_about)
 about_opt.pack(padx=2, pady=2, side=LEFT)
 
 
@@ -778,7 +745,7 @@ def on_click_graph():
     graph_canvas.place(x=0, y=0, relwidth=1.0, relheight=1.0)
 
 
-graphs_opt = Button(header_canva, text="Graphs", font=("Helvetica", 12), command=on_click_graph)
+graphs_opt = Button(header_canva, text="Graphs", font=("Helvetica", 14), bg="#d4fcd2", fg="green", command=on_click_graph)
 graphs_opt.pack(padx=2, pady=2, side=LEFT)
 
 
@@ -787,8 +754,9 @@ label_imported_file.pack(side=LEFT, pady=2, padx=2)
 header_canva.pack(fill=X, ipadx=2, ipady=2, padx=2, pady=1)
 
 content_left_canva = Canvas(root, bg="#FFFFFF", highlightthickness=2, highlightbackground="#000000")
-
+Label(content_left_canva, text="There's currently no data available.\nTo import new data, click on 'Add Data File'.", font=("Helvetica", 18, "bold"), bg="#FFFFFF").pack(pady=10)
 def begin_status(selected_file_name):
+    [child.destroy() for child in content_left_canva.winfo_children()]
     global status_area_frame
 
     search_by_val = StringVar(value="Roll No.")

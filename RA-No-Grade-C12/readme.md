@@ -7,18 +7,18 @@ percentage average etc. Sorted data can be exported as an Excel or JSON file.
 Data should be in a pair of two lines let assume DATA_LINE1 and DATA_LINE2
 
     DATA_LINE1 :- ROLL_NO GENDER STUDENT_NAME SUB_CODE1 SUB_CODE2 SUB_CODE3......SUB_CODE(n) GRADE1 GRADE2 GRADE3 RESULT COMPARTMENT_SUBJECT_CODES
-    DATA_LINE2 :- SUB1_MARKS SUB2_MARKS ...... SUB(n)_MARKS
+    DATA_LINE2 :- SUB1_MARKS SUB1_GRADE SUB2_MARKS SUB2_GRADE ...... SUB(n)_MARKS SUB(n)_GRADE
     
 ### How should be DATA_LINE1 ?
 1. ROLL_NO should be in range of 6 to 10 digits.
 2. Gender M for male, F for female
 3. NAME can contain white spaces.
-4. SUB_CODE1 to infinity works just remember that DATA_LINE2 should contain marks of SUB_CODE(n) in proper format.
+4. SUB_CODE1 to infinity works just remember that DATA_LINE2 should contain marks and grade of SUB_CODE(n) in proper format.
 5. (optional) GRADE1 GRADE2 GRADE3 not actually required software works same if its present of not.
 6. RESULT it should be FAIL, PASS, COMP, ABST and its required.
 
 > how should be DATA_LINE2
-1. SUB(n)_MARKS represents the marks with respect to SUB_CODE(n).
+1. SUB(n)_MARKS and SUB(n)_GRADE represents the marks and grade with respect to SUB_CODE(n).
 
 **Note** : DATA_LINE1 and DATA_LINE2 both are required if any of one missing so software will delete that entry and proceed for next proper paired data lines.
 
