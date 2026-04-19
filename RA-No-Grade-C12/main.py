@@ -640,7 +640,7 @@ def on_click_about():
     text_ar.pack(fill=BOTH, padx=3, expand=True)
 
     def on_developer():
-        webbrowser.open(os.path.relpath("developer_webpage/index.html"), new=2)
+        webbrowser.open("www.github.com/powerpizza", new=2)
 
     btn_developer = Button(about_canva, text="DEVELOPER", bg="blue", fg="yellow", font=("Helvetica", 14), command=on_developer)
     btn_developer.pack(anchor="e", pady=3, padx=3)
