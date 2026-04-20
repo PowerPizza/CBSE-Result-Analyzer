@@ -47,3 +47,24 @@ for example : 4 + 1 = 5 where no_of_best_subjects = 4 and the 1 here for english
 5. Global Dominant Subjects : Its helps to control the column format of table like if we want subject format english
 then Physics chemistry .... so we can use this entry to do that. Just provide subject codes and seperate them
 using ','.
+
+# Note For Devloper
+Naming conventions of project will be:-  
+
+### Release tag naming convention
+RAC`<CLASS>`-`<SHORT SPECIFICATION>`-V`<VERSION>`
+- CLASS: like 10 12 etc.
+- SHORT SPECIFICATION: NG for no grade, WG for with grade and any other short form repersenting that software's usecase.
+- VERSION: 1.x.x or 2.x.x or 3.x.x .... starting from 1.0.0
+
+### Release title naming convention
+RA-C`<CLASS>`-`<FULL SPECIFICATION>`-v`<VERSION>`
+- CLASS: like 10 12 etc.
+- FULL SPECIFICATION: like No Grade, With Grade and any other short form repersenting that software's usecase.
+- VERSION: 1.x.x or 2.x.x or 3.x.x .... starting from 1.0.0
+
+### Installer naming convention
+ResultAnalyzer-C`<CLASS>`.`<FULL SPECIFICATION>`.setup.exe
+- CLASS: like 10 12 etc.
+- FULL SPECIFICATION: unlike previous full specification it should seperated with `.` and written in small letters ex: no.grade or with.grade and any other short form repersenting that software's usecase.
+- VERSION: 1.x.x or 2.x.x or 3.x.x .... starting from 1.0.0
