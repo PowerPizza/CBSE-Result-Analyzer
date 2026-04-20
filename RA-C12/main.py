@@ -253,6 +253,19 @@ def writeToExcel():
         range_sheet = df_cpy[(df_cpy.iloc[:, b5_perc_col_idx] >= sheet_names[limit_]["r1"]) & (df_cpy.iloc[:, b5_perc_col_idx] < sheet_names[limit_]["r2"])]
         range_sheet.to_excel(excel_writer, sheet_name=limit_, index=False)
 
+    # -------------------- Subject Wise Grade Count ---------------------
+    total_labels = [f"Total {grade}" for grade in configs_["best_grades"]]
+    perc_labels = [f"{grade} Percentage" for grade in configs_["best_grades"]]
+    df_sub_grade_count = DataFrame(columns=["Subject", "Code"] + total_labels + ["+".join(configs_["best_grades"])] + perc_labels)
+    for i in range(len(unique_sub_codes)):
+        subject_code = unique_sub_codes[i]
+        grade_counts = [(df_["GRADES"].iloc[:, i] == grade).sum() for grade in configs_["best_grades"]]
+        total_top_graders = sum(grade_counts)
+        grade_perc = [round(((count_ / total_top_graders) * 100), 2) for count_ in grade_counts]
+        df_sub_grade_count.loc[len(df_sub_grade_count)] = [subject_by_code[subject_code]["Name"], subject_code] + grade_counts + [total_top_graders] + grade_perc
+
+    df_sub_grade_count.to_excel(excel_writer, sheet_name="Subject Grade Count", index=False)
+
     # --------- ADDING HEADER WITH MERGED CELLS IN EXCEL FILE -----------
     excel_writer.close()  # necessary!! since I am not using with block.
     wb = load_workbook(export_file.name)
@@ -531,6 +544,34 @@ def on_configs():
     save_DS.pack()
 
     frame_edit_DS.pack(padx=3, pady=2, anchor="w", ipadx=10)
+    # ------------------------- END ------------------------------------
+
+
+    # ------------------------- Best Grades ----------------------
+    best_grades_csv = StringVar(value=",".join(configs_["best_grades"]))
+
+    frame_edit_BG = Frame(config_canva, bg="#FFFFFF", highlightthickness=1, highlightbackground="#000000")
+    lbl_edit_BG = Label(frame_edit_BG, text="Global Best Grades", bg="#FFFFFF", font=("Arial", 14))
+    lbl_edit_BG.pack(anchor="nw")
+
+    frame_edit_BG_E1 = Frame(frame_edit_BG, bg="#FFFFFF")
+    lbl_best_grades = Label(frame_edit_BG_E1, text="Best Grades\n(separated by ',')", bg="#FFFFFF", font=("Arial", 12))
+    lbl_best_grades.pack(side=LEFT)
+    best_grades = Entry(frame_edit_BG_E1, textvariable=best_grades_csv, highlightthickness=1, highlightcolor="#0000FF")
+    best_grades.pack(side=LEFT)
+    frame_edit_BG_E1.pack()
+
+    def on_save_best_grades():
+        best_grades_list = list_formatter(best_grades_csv.get().replace(" ", "").split(","))
+        best_grades_list = list(set(best_grades_list))
+        configs_["best_grades"] = best_grades_list
+        json.dump(configs_, open(CONFIG_FILE_PATH, "w"))
+        messagebox.showinfo("Successful", f"Successfully edited best grades.")
+
+    save_BG = Button(frame_edit_BG, text="Save", bg="#90EE90", width=14, command=on_save_best_grades)
+    save_BG.pack()
+
+    frame_edit_BG.pack(padx=3, pady=2, anchor="w", ipadx=10)
     # ------------------------- END ------------------------------------
 
     config_canva.place(x=0, y=0, relwidth=1.0, relheight=1.0)
