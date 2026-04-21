@@ -68,3 +68,8 @@ ResultAnalyzer-C`<CLASS>`.`<FULL SPECIFICATION>`.setup.exe
 - CLASS: like 10 12 etc.
 - FULL SPECIFICATION: unlike previous full specification it should seperated with `.` and written in small letters ex: no.grade or with.grade and any other short form repersenting that software's usecase.
 - VERSION: 1.x.x or 2.x.x or 3.x.x .... starting from 1.0.0
+
+### Application naming convention
+Application name can be anything but must contain full version in suffix.  
+Ex:
+`Result Analyzer (With Grade) C12 v1.1.0-beta.1`
