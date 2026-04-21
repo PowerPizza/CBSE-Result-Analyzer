@@ -24,7 +24,7 @@ root.state("zoomed")
 root.iconphoto(True, PhotoImage(file="software_icon.png", master=root))
 
 # --------------- constants and variables ------------
-DATA_DIRECTORY = os.path.join(os.getenv("APPDATA"), "Result Analyzer 12th")
+DATA_DIRECTORY = os.path.join(os.getenv("APPDATA"), "Result Analyzer 12th v1.1.0-beta.1")
 SUB_CODE_REFR_PATH = os.path.join(DATA_DIRECTORY, "subject_code_refer.json")
 CONFIG_FILE_PATH = os.path.join(DATA_DIRECTORY, "configs.json")
 
